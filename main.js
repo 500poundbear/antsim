@@ -1,5 +1,7 @@
 var canvas;
 var ctx;
+var canvasHeight = 300;
+var canvasWidth = 300;
 
 var rows = 20;
 var cols = 20;
@@ -23,19 +25,42 @@ function reDraw() {
     }     
     canvas.renderAll();
 }
-
+function reDrawPheromones() {
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < cols; j++) {
+            var pheromonelevel = fabricPheromones[i][j].theval;
+            var blueness = (256 - Math.floor(pheromonelevel % 256)).toString(16);
+            fabricPheromones[i][j].set("fill","#0000" + blueness);
+        }
+    }
+    canvas.renderAll();
+}
 function reCalcAnts() {
     for(var i = 0; i < ants.length; i++ ) {
         ants[i].decideMove();
     }
 }
 function addPheromones() {
-    
+    for(var i = 0; i < fabricAnts.length; i++ ){
+        var pos = ants[i].getPos();
+        
+        if (pos[0] >= 0 && pos[0] <= canvasWidth &&
+            pos[1] >= 0 && pos[1] <= canvasHeight) {
+
+            var width = canvasWidth / cols;
+            var height = canvasHeight / rows;
+            
+            var gRow = Math.floor(pos[1]/height);
+            var gCol = Math.floor(pos[0]/width);
+            
+            fabricPheromones[gRow][gCol].theval += 0.3; 
+        } 
+    }    
 }
 
 function setUpPheromones() {
-    var width = 300 / cols;
-    var height = 300 / rows;
+    var width = canvasWidth / cols;
+    var height = canvasHeight / rows;
     for (var i = 0; i < rows; i++) {
         fabricPheromones[i] = new Array();
         for (var j = 0; j < cols; j++) {
@@ -47,7 +72,7 @@ function setUpPheromones() {
                 left: Math.floor(j*width),
                 selectable:false
             }));
-            console.log(i+" "+j);
+            fabricPheromones[i][j].theval = 0;
             canvas.add(fabricPheromones[i][j]);
         }
     }
@@ -58,6 +83,7 @@ function refresh(x) {
     reCalcAnts();
     addPheromones();
     reDraw();
+    reDrawPheromones();
     if (x < 20000) {
         window.requestAnimationFrame(refresh);
     }
@@ -65,8 +91,8 @@ function refresh(x) {
 $(document).ready(function () {
     canvas = new fabric.Canvas('c');
     
-    canvas.setHeight(300);
-    canvas.setWidth(300);
+    canvas.setHeight(canvasHeight);
+    canvas.setWidth(canvasWidth);
 
     ctx = canvas.getContext('2d');
     ctx.fillStyle="pink";
