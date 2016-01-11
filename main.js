@@ -3,6 +3,9 @@ var ctx;
 var canvasHeight = 300;
 var canvasWidth = 300;
 
+var spawnX = 100;
+var spawnY = 100;    
+
 var rows = 20;
 var cols = 20;
 
@@ -30,14 +33,14 @@ function reDrawPheromones() {
         for (var j = 0; j < cols; j++) {
             var pheromonelevel = fabricPheromones[i][j].theval;
             var blueness = (256 - Math.floor(pheromonelevel % 256)).toString(16);
-            fabricPheromones[i][j].set("fill","#0000" + blueness);
+            fabricPheromones[i][j].set("fill","#EEEE" + blueness);
         }
     }
     canvas.renderAll();
 }
 function reCalcAnts() {
     for(var i = 0; i < ants.length; i++ ) {
-        ants[i].decideMove();
+        ants[i].decideMove(fabricFood);
     }
 }
 function addPheromones() {
@@ -79,7 +82,7 @@ function setUpPheromones() {
     canvas.renderAll();
 }
 function refresh(x) {
-    console.log(x); 
+    //console.log(x); 
     reCalcAnts();
     addPheromones();
     reDraw();
@@ -98,8 +101,6 @@ $(document).ready(function () {
     ctx.fillStyle="pink";
     ctx.fillRect(100, 100, 20, 20);
 
-    var spawnX = 100;
-    var spawnY = 100;    
 
     canvas.on('mouse:down', function(e) {
         var mouse = e.e;
@@ -119,7 +120,7 @@ $(document).ready(function () {
     
     setUpPheromones(); 
 
-    for(var i = 0; i < 9; i++) {
+    for(var i = 0; i < 5; i++) {
         ants.push(new Ant(spawnX, spawnY, 2)); 
         fabricAnts.push(new fabric.Circle({
             radius: 2,
